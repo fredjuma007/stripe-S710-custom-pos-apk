@@ -1,0 +1,3 @@
+-keep class com.stripe.** { *; }
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
