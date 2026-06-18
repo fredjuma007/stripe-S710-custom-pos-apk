@@ -63,6 +63,7 @@ import community.rafiki.pay.domain.DonationAmountValidator
 import community.rafiki.pay.payments.DonationPaymentRequest
 import community.rafiki.pay.payments.PaymentController
 import community.rafiki.pay.payments.PaymentResult
+import community.rafiki.pay.payments.SimulatedPaymentOutcome
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -83,6 +84,9 @@ fun RafikiPayApp(
     var screen by remember { mutableStateOf<RafikiScreen>(RafikiScreen.Select) }
     var selectedAmountPence by remember { mutableStateOf(0L) }
     var selectedDonationType by remember { mutableStateOf("preset") }
+    var simulatedPaymentOutcome by remember {
+        mutableStateOf(SimulatedPaymentOutcome.SUCCESS)
+    }
 
     fun selectAmount(pounds: Int, type: String) {
         val amount = DonationAmountValidator.poundsToPenceOrNull(pounds) ?: return
@@ -194,6 +198,11 @@ fun RafikiPayApp(
                     appVersion = appVersion,
                     deviceId = deviceId,
                     simulatedReader = simulatedReader,
+                    simulatedPaymentOutcome = simulatedPaymentOutcome,
+                    onSimulatedPaymentOutcomeChange = { outcome ->
+                        simulatedPaymentOutcome = outcome
+                        paymentController.setSimulatedPaymentOutcome(outcome)
+                    },
                     onSavePresets = { values ->
                         scope.launch { configRepository.savePresetAmounts(values) }
                     },
@@ -657,6 +666,8 @@ private fun AdminScreen(
     appVersion: String,
     deviceId: String,
     simulatedReader: Boolean,
+    simulatedPaymentOutcome: SimulatedPaymentOutcome,
+    onSimulatedPaymentOutcomeChange: (SimulatedPaymentOutcome) -> Unit,
     onSavePresets: (List<Int>) -> Unit,
     onResetPresets: () -> Unit,
     onCheckBackend: () -> Unit,
@@ -714,6 +725,50 @@ private fun AdminScreen(
         InfoLine("Version", appVersion)
         InfoLine("Device", deviceId)
         InfoLine("Reader mode", if (simulatedReader) "Simulated" else "S710 handoff")
+        if (simulatedReader) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "Next simulated payment",
+                modifier = Modifier.fillMaxWidth(),
+                color = RafikiColors.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.sp,
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SimulatorOutcomeButton(
+                    text = "Success",
+                    selected = simulatedPaymentOutcome == SimulatedPaymentOutcome.SUCCESS,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        onSimulatedPaymentOutcomeChange(SimulatedPaymentOutcome.SUCCESS)
+                    },
+                )
+                SimulatorOutcomeButton(
+                    text = "Decline",
+                    selected = simulatedPaymentOutcome == SimulatedPaymentOutcome.DECLINED,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        onSimulatedPaymentOutcomeChange(SimulatedPaymentOutcome.DECLINED)
+                    },
+                )
+                SimulatorOutcomeButton(
+                    text = "No funds",
+                    selected = simulatedPaymentOutcome ==
+                        SimulatedPaymentOutcome.INSUFFICIENT_FUNDS,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        onSimulatedPaymentOutcomeChange(
+                            SimulatedPaymentOutcome.INSUFFICIENT_FUNDS,
+                        )
+                    },
+                )
+            }
+        }
         Spacer(Modifier.height(18.dp))
         SecondaryActionButton(
             text = "Check backend",
@@ -732,6 +787,36 @@ private fun AdminScreen(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             onClick = onClose,
         )
+    }
+}
+
+@Composable
+private fun SimulatorOutcomeButton(
+    text: String,
+    selected: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    if (selected) {
+        Button(
+            modifier = modifier.height(48.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = RafikiColors.Green,
+                contentColor = RafikiColors.White,
+            ),
+            onClick = onClick,
+        ) {
+            Text(text = text, fontSize = 13.sp, letterSpacing = 0.sp)
+        }
+    } else {
+        OutlinedButton(
+            modifier = modifier.height(48.dp),
+            shape = RoundedCornerShape(8.dp),
+            onClick = onClick,
+        ) {
+            Text(text = text, fontSize = 13.sp, letterSpacing = 0.sp)
+        }
     }
 }
 

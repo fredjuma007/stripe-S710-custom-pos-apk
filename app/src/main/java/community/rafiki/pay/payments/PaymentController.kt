@@ -8,6 +8,12 @@ data class DonationPaymentRequest(
     val donationType: String,
 )
 
+enum class SimulatedPaymentOutcome {
+    SUCCESS,
+    DECLINED,
+    INSUFFICIENT_FUNDS,
+}
+
 sealed interface PaymentResult {
     data class Success(val paymentIntentId: String?) : PaymentResult
     data object Cancelled : PaymentResult
@@ -16,4 +22,6 @@ sealed interface PaymentResult {
 
 interface PaymentController {
     suspend fun takePayment(request: DonationPaymentRequest): PaymentResult
+
+    fun setSimulatedPaymentOutcome(outcome: SimulatedPaymentOutcome) = Unit
 }

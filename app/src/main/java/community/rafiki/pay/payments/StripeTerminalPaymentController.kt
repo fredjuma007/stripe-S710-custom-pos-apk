@@ -22,6 +22,9 @@ import com.stripe.stripeterminal.external.models.PaymentIntent
 import com.stripe.stripeterminal.external.models.PaymentStatus
 import com.stripe.stripeterminal.external.models.Reader
 import com.stripe.stripeterminal.external.models.ReaderEvent
+import com.stripe.stripeterminal.external.models.SimulatedCard
+import com.stripe.stripeterminal.external.models.SimulatedCardType
+import com.stripe.stripeterminal.external.models.SimulatorConfiguration
 import com.stripe.stripeterminal.external.models.TerminalErrorCode
 import com.stripe.stripeterminal.external.models.TerminalException
 import com.stripe.stripeterminal.log.LogLevel
@@ -39,10 +42,19 @@ class StripeTerminalPaymentController(
 ) : PaymentController {
     private var connectedReader: Reader? = null
     private var reusableIntent: PendingIntentForRetry? = null
+    private var simulatedPaymentOutcome = SimulatedPaymentOutcome.SUCCESS
+
+    override fun setSimulatedPaymentOutcome(outcome: SimulatedPaymentOutcome) {
+        simulatedPaymentOutcome = outcome
+        if (simulatedReader && Terminal.isInitialized()) {
+            applySimulatorConfiguration()
+        }
+    }
 
     override suspend fun takePayment(request: DonationPaymentRequest): PaymentResult {
         return try {
             ensureTerminalInitialized()
+            if (simulatedReader) applySimulatorConfiguration()
             ensureReaderConnected()
 
             val paymentIntent = retrieveOrCreatePaymentIntent(request)
@@ -65,6 +77,18 @@ class StripeTerminalPaymentController(
         } catch (error: Throwable) {
             PaymentResult.Failure(error.message ?: "Payment could not be completed.")
         }
+    }
+
+    private fun applySimulatorConfiguration() {
+        val cardType = when (simulatedPaymentOutcome) {
+            SimulatedPaymentOutcome.SUCCESS -> SimulatedCardType.VISA
+            SimulatedPaymentOutcome.DECLINED -> SimulatedCardType.CHARGE_DECLINED
+            SimulatedPaymentOutcome.INSUFFICIENT_FUNDS ->
+                SimulatedCardType.CHARGE_DECLINED_INSUFFICIENT_FUNDS
+        }
+        Terminal.getInstance().simulatorConfiguration = SimulatorConfiguration(
+            simulatedCard = SimulatedCard(cardType),
+        )
     }
 
     private fun ensureTerminalInitialized() {
