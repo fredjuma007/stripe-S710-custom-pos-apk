@@ -2,7 +2,6 @@
   "name": "rafikipay-backend",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs"

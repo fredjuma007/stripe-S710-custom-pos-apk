@@ -1,9 +1,9 @@
-import Stripe from "stripe";
+import Stripe = require("stripe");
 import { requiredEnv } from "./config";
 
-let stripe: Stripe | null = null;
+let stripe: Stripe.Stripe | null = null;
 
-export function getStripe(): Stripe {
+export function getStripe(): Stripe.Stripe {
   if (!stripe) {
     stripe = new Stripe(requiredEnv("STRIPE_SECRET_KEY"), {
       appInfo: {
