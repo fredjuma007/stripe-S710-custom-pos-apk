@@ -1,6 +1,7 @@
 package community.rafiki.pay.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -74,6 +75,7 @@ fun RafikiPayApp(
     appVersion: String,
     backendBaseUrl: String,
     simulatedReader: Boolean,
+    requestLocationPermission: ((Boolean) -> Unit) -> Unit,
     openStripeSettings: () -> Unit,
 ) {
     val presets by configRepository.presetAmounts.collectAsState(initial = DonationConfigRepository.DEFAULT_PRESETS)
@@ -89,7 +91,7 @@ fun RafikiPayApp(
         screen = RafikiScreen.Confirm
     }
 
-    fun startPayment() {
+    fun performPayment() {
         val amount = selectedAmountPence
         val type = selectedDonationType
         scope.launch {
@@ -115,6 +117,35 @@ fun RafikiPayApp(
                     retryable = result.retryable,
                 )
             }
+        }
+    }
+
+    fun startPayment() {
+        requestLocationPermission { granted ->
+            if (granted) {
+                performPayment()
+            } else {
+                screen = RafikiScreen.Failure(
+                    message = "Location permission is required to connect to the payment reader.",
+                    amountPence = selectedAmountPence,
+                    retryable = true,
+                )
+            }
+        }
+    }
+
+    BackHandler(enabled = screen != RafikiScreen.Select) {
+        screen = when (screen) {
+            RafikiScreen.CustomAmount,
+            RafikiScreen.Confirm,
+            is RafikiScreen.Success,
+            is RafikiScreen.Failure,
+            RafikiScreen.AdminPin,
+            RafikiScreen.Admin,
+            -> RafikiScreen.Select
+            is RafikiScreen.AdminStatus -> RafikiScreen.Admin
+            is RafikiScreen.Processing -> screen
+            RafikiScreen.Select -> RafikiScreen.Select
         }
     }
 
