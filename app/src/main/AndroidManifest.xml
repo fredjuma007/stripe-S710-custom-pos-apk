@@ -10,7 +10,9 @@
     <application
         android:name=".RafikiPayApplication"
         android:allowBackup="false"
+        android:icon="@drawable/ic_rafikipay"
         android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_rafikipay"
         android:supportsRtl="true"
         android:theme="@style/Theme.RafikiPay">
         <activity

@@ -42,8 +42,11 @@ export function parsePaymentIntentInput(body: unknown): PaymentIntentInput {
 }
 
 export class ValidationError extends Error {
-  constructor(public readonly code: string) {
+  readonly code: string;
+
+  constructor(code: string) {
     super(code);
+    this.code = code;
   }
 }
 

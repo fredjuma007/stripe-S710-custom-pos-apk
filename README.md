@@ -35,6 +35,25 @@ RAFIKIPAY_KEY_PASSWORD=...
 
 Debug builds default to a simulated reader path. Release builds use Stripe Apps on Devices handoff mode.
 
+Build and test on Windows:
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest
+.\gradlew.bat :app:assembleDebug
+```
+
+The test APK is written to:
+
+```text
+app/build/outputs/apk/debug/RafikiPay-v1.0.0-test-debug.apk
+```
+
+After adding release signing properties, build the production APK with:
+
+```powershell
+.\gradlew.bat :app:assembleRelease
+```
+
 ## Backend
 
 ```bash
