@@ -1,6 +1,7 @@
 package community.rafiki.pay.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,8 +19,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,14 +45,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import community.rafiki.pay.R
 import community.rafiki.pay.data.DonationConfigRepository
 import community.rafiki.pay.data.RafikiPayApi
 import community.rafiki.pay.domain.DonationAmountValidator
@@ -207,30 +213,30 @@ private fun AmountSelectionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 64.dp, vertical = 54.dp),
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         RafikiLogo(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(310.dp)
+                .height(142.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(onLongPress = { onAdminGesture() })
                 },
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = "Donate today",
             color = RafikiColors.Black,
-            fontSize = 74.sp,
+            fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(42.dp))
+        Spacer(Modifier.height(24.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             presets.forEach { pounds ->
                 AmountTile(
@@ -240,19 +246,19 @@ private fun AmountSelectionScreen(
                 )
             }
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(18.dp))
         PrimaryActionButton(
             text = "Other amount",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(92.dp),
+                .height(64.dp),
             onClick = onCustom,
         )
         Spacer(Modifier.weight(1f))
         Text(
             text = "Rafiki Community CIC",
             color = RafikiColors.Ink,
-            fontSize = 28.sp,
+            fontSize = 18.sp,
             textAlign = TextAlign.Center,
             letterSpacing = 0.sp,
         )
@@ -263,30 +269,30 @@ private fun AmountSelectionScreen(
 private fun AmountTile(label: String, modifier: Modifier, onClick: () -> Unit) {
     Column(
         modifier = modifier
-            .aspectRatio(0.78f)
+            .aspectRatio(0.9f)
             .clip(RoundedCornerShape(8.dp))
-            .border(3.dp, RafikiColors.Black, RoundedCornerShape(8.dp))
+            .border(2.dp, RafikiColors.Black, RoundedCornerShape(8.dp))
             .background(RafikiColors.White)
             .clickable(onClick = onClick)
-            .padding(14.dp),
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = label,
             color = RafikiColors.Black,
-            fontSize = 58.sp,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Clip,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(10.dp))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(62.dp)
+                .height(36.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(RafikiColors.Orange),
             contentAlignment = Alignment.Center,
@@ -294,7 +300,7 @@ private fun AmountTile(label: String, modifier: Modifier, onClick: () -> Unit) {
             Text(
                 text = "Donate",
                 color = RafikiColors.Black,
-                fontSize = 24.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.sp,
             )
@@ -314,27 +320,27 @@ private fun CustomAmountScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 54.dp),
+            .padding(horizontal = 24.dp, vertical = 18.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         HeaderMark()
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(10.dp))
         Text(
             text = "Choose amount",
             color = RafikiColors.Black,
-            fontSize = 58.sp,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = if (input.isBlank()) "\u00A30" else "\u00A3$input",
             color = RafikiColors.Red,
-            fontSize = 94.sp,
+            fontSize = 52.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(14.dp))
         Keypad(
             onDigit = { digit ->
                 if (input.length < 3) input += digit
@@ -342,17 +348,17 @@ private fun CustomAmountScreen(
             onDelete = { input = input.dropLast(1) },
             onClear = { input = "" },
         )
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(14.dp))
         PrimaryActionButton(
             text = "Donate",
             enabled = valid,
-            modifier = Modifier.fillMaxWidth().height(88.dp),
+            modifier = Modifier.fillMaxWidth().height(60.dp),
             onClick = { pounds?.let(onAmount) },
         )
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(10.dp))
         SecondaryActionButton(
             text = "Back",
-            modifier = Modifier.fillMaxWidth().height(78.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             onClick = onBack,
         )
     }
@@ -370,14 +376,14 @@ private fun Keypad(
         listOf("7", "8", "9"),
         listOf("Clear", "0", "Del"),
     )
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         rows.forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 row.forEach { key ->
                     OutlinedButton(
                         modifier = Modifier
                             .weight(1f)
-                            .height(84.dp),
+                            .height(58.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = RafikiColors.Black,
@@ -392,7 +398,7 @@ private fun Keypad(
                     ) {
                         Text(
                             text = key,
-                            fontSize = if (key.length > 1) 24.sp else 36.sp,
+                            fontSize = if (key.length > 1) 16.sp else 24.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.sp,
                         )
@@ -412,40 +418,40 @@ private fun ConfirmDonationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 72.dp),
+            .padding(horizontal = 24.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         HeaderMark()
-        Spacer(Modifier.height(64.dp))
+        Spacer(Modifier.height(36.dp))
         Text(
             text = "Your donation",
             color = RafikiColors.Ink,
-            fontSize = 48.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = DonationAmountValidator.displayPounds(amountPence),
             color = RafikiColors.Red,
-            fontSize = 124.sp,
+            fontSize = 76.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(50.dp))
+        Spacer(Modifier.height(32.dp))
         PrimaryActionButton(
             text = "Donate",
-            modifier = Modifier.fillMaxWidth().height(96.dp),
+            modifier = Modifier.fillMaxWidth().height(64.dp),
             onClick = onDonate,
         )
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(12.dp))
         SecondaryActionButton(
             text = "Change amount",
-            modifier = Modifier.fillMaxWidth().height(82.dp),
+            modifier = Modifier.fillMaxWidth().height(54.dp),
             onClick = onChange,
         )
         Spacer(Modifier.weight(1f))
-        PatternBand()
+        BrandAccentBar()
     }
 }
 
@@ -454,29 +460,29 @@ private fun ProcessingScreen(amountPence: Long) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 72.dp),
+            .padding(horizontal = 28.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(94.dp),
+            modifier = Modifier.size(58.dp),
             color = RafikiColors.Red,
-            strokeWidth = 8.dp,
+            strokeWidth = 6.dp,
         )
-        Spacer(Modifier.height(44.dp))
+        Spacer(Modifier.height(24.dp))
         Text(
             text = "Opening secure payment",
             color = RafikiColors.Black,
-            fontSize = 46.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = DonationAmountValidator.displayPounds(amountPence),
             color = RafikiColors.Ink,
-            fontSize = 52.sp,
+            fontSize = 36.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.sp,
         )
@@ -495,26 +501,26 @@ private fun SuccessScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 72.dp),
+            .padding(horizontal = 28.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        HeartCheck(modifier = Modifier.size(210.dp))
-        Spacer(Modifier.height(46.dp))
+        HeartCheck(modifier = Modifier.size(132.dp))
+        Spacer(Modifier.height(28.dp))
         Text(
             text = "Thank you for supporting Rafiki",
             color = RafikiColors.Black,
-            fontSize = 54.sp,
+            fontSize = 34.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            lineHeight = 62.sp,
+            lineHeight = 40.sp,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(14.dp))
         Text(
             text = DonationAmountValidator.displayPounds(amountPence),
             color = RafikiColors.Red,
-            fontSize = 62.sp,
+            fontSize = 42.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
@@ -531,33 +537,33 @@ private fun FailureScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 72.dp),
+            .padding(horizontal = 28.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         HeaderMark()
-        Spacer(Modifier.height(52.dp))
+        Spacer(Modifier.height(28.dp))
         Text(
             text = message,
             color = RafikiColors.Black,
-            fontSize = 42.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
-            lineHeight = 50.sp,
+            lineHeight = 34.sp,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(46.dp))
+        Spacer(Modifier.height(28.dp))
         if (retryable) {
             PrimaryActionButton(
                 text = "Try again",
-                modifier = Modifier.fillMaxWidth().height(90.dp),
+                modifier = Modifier.fillMaxWidth().height(60.dp),
                 onClick = onRetry,
             )
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(10.dp))
         }
         SecondaryActionButton(
             text = "Choose another amount",
-            modifier = Modifier.fillMaxWidth().height(82.dp),
+            modifier = Modifier.fillMaxWidth().height(54.dp),
             onClick = onChooseAnother,
         )
     }
@@ -573,27 +579,27 @@ private fun AdminPinScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 64.dp),
+            .padding(horizontal = 24.dp, vertical = 18.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         HeaderMark()
-        Spacer(Modifier.height(58.dp))
+        Spacer(Modifier.height(20.dp))
         Text(
             text = "Admin PIN",
             color = RafikiColors.Black,
-            fontSize = 48.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = "*".repeat(pin.length).ifBlank { "----" },
             color = RafikiColors.Red,
-            fontSize = 72.sp,
+            fontSize = 44.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
         Keypad(
             onDigit = { digit ->
                 if (pin.length < 4) {
@@ -604,10 +610,10 @@ private fun AdminPinScreen(
             onDelete = { pin = pin.dropLast(1) },
             onClear = { pin = "" },
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
         SecondaryActionButton(
             text = "Cancel",
-            modifier = Modifier.fillMaxWidth().height(78.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             onClick = onCancel,
         )
     }
@@ -634,26 +640,27 @@ private fun AdminScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 46.dp, vertical = 44.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "RafikiPay Admin",
             color = RafikiColors.Black,
-            fontSize = 42.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(18.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             PresetField("One", first, { first = it }, Modifier.weight(1f))
             PresetField("Two", second, { second = it }, Modifier.weight(1f))
             PresetField("Three", third, { third = it }, Modifier.weight(1f))
         }
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(12.dp))
         PrimaryActionButton(
             text = "Save amounts",
-            modifier = Modifier.fillMaxWidth().height(76.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             onClick = {
                 focusManager.clearFocus()
                 onSavePresets(
@@ -665,33 +672,33 @@ private fun AdminScreen(
                 )
             },
         )
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(10.dp))
         SecondaryActionButton(
             text = "Reset defaults",
-            modifier = Modifier.fillMaxWidth().height(70.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             onClick = onResetPresets,
         )
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(18.dp))
         InfoLine("Backend", backendBaseUrl)
         InfoLine("Version", appVersion)
         InfoLine("Device", deviceId)
         InfoLine("Reader mode", if (simulatedReader) "Simulated" else "S710 handoff")
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(18.dp))
         SecondaryActionButton(
             text = "Check backend",
-            modifier = Modifier.fillMaxWidth().height(70.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             onClick = onCheckBackend,
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         SecondaryActionButton(
             text = "Stripe settings",
-            modifier = Modifier.fillMaxWidth().height(70.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             onClick = onOpenStripeSettings,
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         PrimaryActionButton(
             text = "Close",
-            modifier = Modifier.fillMaxWidth().height(76.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             onClick = onClose,
         )
     }
@@ -716,18 +723,18 @@ private fun PresetField(
 
 @Composable
 private fun InfoLine(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
         Text(
             text = label,
             color = RafikiColors.DeepRed,
-            fontSize = 18.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
         )
         Text(
             text = value,
             color = RafikiColors.Ink,
-            fontSize = 22.sp,
+            fontSize = 15.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             letterSpacing = 0.sp,
@@ -744,31 +751,31 @@ private fun AdminStatusScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 68.dp, vertical = 72.dp),
+            .padding(horizontal = 28.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = if (ok) "Backend OK" else "Backend issue",
             color = if (ok) RafikiColors.Green else RafikiColors.Red,
-            fontSize = 54.sp,
+            fontSize = 34.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(18.dp))
         Text(
             text = message,
             color = RafikiColors.Ink,
-            fontSize = 32.sp,
+            fontSize = 22.sp,
             textAlign = TextAlign.Center,
-            lineHeight = 40.sp,
+            lineHeight = 28.sp,
             letterSpacing = 0.sp,
         )
-        Spacer(Modifier.height(42.dp))
+        Spacer(Modifier.height(28.dp))
         PrimaryActionButton(
             text = "Back",
-            modifier = Modifier.fillMaxWidth().height(82.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             onClick = onBack,
         )
     }
@@ -795,7 +802,7 @@ private fun PrimaryActionButton(
     ) {
         Text(
             text = text,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -820,7 +827,7 @@ private fun SecondaryActionButton(
     ) {
         Text(
             text = text,
-            fontSize = 28.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -831,83 +838,41 @@ private fun SecondaryActionButton(
 
 @Composable
 private fun HeaderMark() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = "RAFIKI",
-            color = RafikiColors.Black,
-            fontSize = 64.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 0.sp,
-        )
-        Text(
-            text = "a friend in deed",
-            color = RafikiColors.Ink,
-            fontSize = 24.sp,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.sp,
-        )
-    }
+    Image(
+        painter = painterResource(R.drawable.rafiki_logo),
+        contentDescription = "Rafiki - a friend in deed",
+        modifier = Modifier
+            .fillMaxWidth(0.72f)
+            .height(76.dp),
+        contentScale = ContentScale.Fit,
+    )
 }
 
 @Composable
 private fun RafikiLogo(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        PatternBand(modifier = Modifier.matchParentSize())
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "RAFIKI",
-                color = RafikiColors.Black,
-                fontSize = 130.sp,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-                letterSpacing = 0.sp,
-            )
-            Text(
-                text = "a friend in deed",
-                color = RafikiColors.Ink,
-                fontSize = 42.sp,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                letterSpacing = 0.sp,
-            )
-        }
-        Canvas(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(74.dp),
-        ) {
-            drawHeart(RafikiColors.Coral)
-        }
-        Canvas(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .size(72.dp),
-        ) {
-            drawHeart(RafikiColors.Coral)
-        }
-    }
+    Image(
+        painter = painterResource(R.drawable.rafiki_logo),
+        contentDescription = "Rafiki - a friend in deed",
+        modifier = modifier,
+        contentScale = ContentScale.Fit,
+    )
 }
 
 @Composable
-private fun PatternBand(modifier: Modifier = Modifier.fillMaxWidth().height(66.dp)) {
-    Canvas(modifier = modifier) {
-        val colors = listOf(RafikiColors.Green, RafikiColors.Orange, RafikiColors.Coral)
-        val stripeHeight = size.height.coerceAtLeast(1f)
-        for (index in 0..8) {
-            val left = index * size.width / 8f
-            val color = colors[index % colors.size]
-            drawCircle(color, radius = stripeHeight * 0.16f, center = Offset(left + 30f, stripeHeight * 0.25f))
-            drawCircle(color, radius = stripeHeight * 0.16f, center = Offset(left + 84f, stripeHeight * 0.75f))
-            val path = Path().apply {
-                moveTo(left, stripeHeight * 0.58f)
-                lineTo(left + 38f, stripeHeight * 0.22f)
-                lineTo(left + 78f, stripeHeight * 0.58f)
-            }
-            drawPath(path, color = color, style = Stroke(width = 12f))
+private fun BrandAccentBar() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .clip(RoundedCornerShape(4.dp)),
+    ) {
+        listOf(RafikiColors.Green, RafikiColors.Orange, RafikiColors.Coral).forEach { color ->
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .background(color),
+            )
         }
     }
 }
@@ -918,13 +883,13 @@ private fun HeartCheck(modifier: Modifier) {
         Canvas(modifier = Modifier.matchParentSize()) {
             drawHeart(RafikiColors.Coral)
         }
-        Canvas(modifier = Modifier.size(105.dp)) {
+        Canvas(modifier = Modifier.size(66.dp)) {
             val path = Path().apply {
                 moveTo(size.width * 0.2f, size.height * 0.55f)
                 lineTo(size.width * 0.43f, size.height * 0.75f)
                 lineTo(size.width * 0.82f, size.height * 0.25f)
             }
-            drawPath(path, color = RafikiColors.White, style = Stroke(width = 16f))
+            drawPath(path, color = RafikiColors.White, style = Stroke(width = 10f))
         }
     }
 }
