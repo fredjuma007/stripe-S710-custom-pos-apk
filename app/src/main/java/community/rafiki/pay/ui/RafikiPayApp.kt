@@ -777,8 +777,9 @@ private fun AdminScreen(
         )
         Spacer(Modifier.height(8.dp))
         SecondaryActionButton(
-            text = "Stripe settings",
+            text = if (simulatedReader) "Stripe settings (S710 only)" else "Stripe settings",
             modifier = Modifier.fillMaxWidth().height(52.dp),
+            enabled = !simulatedReader,
             onClick = onOpenStripeSettings,
         )
         Spacer(Modifier.height(8.dp))
@@ -931,10 +932,12 @@ private fun PrimaryActionButton(
 private fun SecondaryActionButton(
     text: String,
     modifier: Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     OutlinedButton(
         modifier = modifier,
+        enabled = enabled,
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = RafikiColors.Black,

@@ -1,5 +1,6 @@
 package community.rafiki.pay
 
+import android.content.ActivityNotFoundException
 import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -89,9 +90,13 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     openStripeSettings = {
-                        startActivity(
-                            Intent(Intent.ACTION_VIEW).setData(Uri.parse("stripe://settings/")),
-                        )
+                        try {
+                            startActivity(
+                                Intent(Intent.ACTION_VIEW).setData(Uri.parse("stripe://settings/")),
+                            )
+                        } catch (_: ActivityNotFoundException) {
+                            // The Stripe settings activity exists only on supported Stripe readers.
+                        }
                     },
                 )
             }
